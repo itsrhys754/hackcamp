@@ -16,8 +16,8 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { CSVLink } from 'react-csv';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Dropdown, Button } from 'react-bootstrap';
-import { awsData, azureData } from './ChartData'; // Updated import statement
+import { Dropdown, Button, Row, Col } from 'react-bootstrap';
+import { awsData, azureData } from './ChartData';
 
 function DashboardContent() {
   const [selectedProvider, setSelectedProvider] = useState('aws');
@@ -45,44 +45,51 @@ function DashboardContent() {
     <div className="container">
       <h2>CO2 Emissions Dashboard</h2>
 
-      {/* Dropdown for selecting cloud provider */}
-      <div className="mb-3">
-        <label className="mr-2">Select Cloud Provider: </label>
-        <Dropdown onSelect={(eventKey) => setSelectedProvider(eventKey)}>
-          <Dropdown.Toggle variant="primary">
-            {selectedProvider === 'aws' ? 'AWS' : 'Azure'}
-          </Dropdown.Toggle>
-          <Dropdown.Menu>
-            <Dropdown.Item eventKey="aws">AWS</Dropdown.Item>
-            <Dropdown.Item eventKey="azure">Azure</Dropdown.Item>
-          </Dropdown.Menu>
-        </Dropdown>
-      </div>
+      {/* Row for elements in line */}
+      <Row className="mb-3">
+        {/* Cloud Provider Dropdown */}
+        <Col md={4}>
+          <label className="mr-2">Select Cloud Provider: </label>
+          <Dropdown onSelect={(eventKey) => setSelectedProvider(eventKey)}>
+            <Dropdown.Toggle variant="primary">
+              {selectedProvider === 'aws' ? 'AWS' : 'Azure'}
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
+              <Dropdown.Item eventKey="aws">AWS</Dropdown.Item>
+              <Dropdown.Item eventKey="azure">Azure</Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
+        </Col>
 
-      {/* Date Range Picker */}
-      <div className="mb-3">
-        <label className="mr-2">Date Range: </label>
-        <DatePicker
-          selected={startDate}
-          onChange={(date) => setStartDate(date)}
-          selectsStart
-          startDate={startDate}
-          endDate={endDate}
-        />
-        <DatePicker
-          selected={endDate}
-          onChange={(date) => setEndDate(date)}
-          selectsEnd
-          startDate={startDate}
-          endDate={endDate}
-          minDate={startDate}
-        />
-      </div>
+        {/* Date Range Picker */}
+        <Col md={4}>
+          <label className="mr-2">Date Range: </label>
+          <DatePicker
+            selected={startDate}
+            onChange={(date) => setStartDate(date)}
+            selectsStart
+            startDate={startDate}
+            endDate={endDate}
+            className="form-control"
+          />
+          <DatePicker
+            selected={endDate}
+            onChange={(date) => setEndDate(date)}
+            selectsEnd
+            startDate={startDate}
+            endDate={endDate}
+            minDate={startDate}
+            className="form-control"
+          />
+        </Col>
 
-      {/* Export Button */}
-      <CSVLink data={filteredData} headers={headers} filename={'CO2_Emissions_Data.csv'}>
-        <Button variant="success">Export Data</Button>
-      </CSVLink>
+        {/* Export Button */}
+        <Col md={4} className="d-flex align-items-end">
+          <CSVLink data={filteredData} headers={headers} filename={'CO2_Emissions_Data.csv'}>
+            <Button variant="success">Export Data</Button>
+          </CSVLink>
+        </Col>
+      </Row>
 
       {/* Chart based on selected cloud provider */}
       <ResponsiveContainer width="100%" height={400}>
