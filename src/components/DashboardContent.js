@@ -19,6 +19,14 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { Dropdown, Button, Row, Col } from 'react-bootstrap';
 import { awsData, azureData } from './ChartData';
 
+// Import PieChart, Pie, Cell from recharts
+import { PieChart, Pie, Cell } from 'recharts';
+
+const horizontalPadding = {
+  paddingLeft: '10px', // Adjust the padding value as needed
+  paddingRight: '10px', // Adjust the padding value as needed
+};
+
 function DashboardContent() {
   // State variables for show/hide
   const [showCost, setShowCost] = useState(true);
@@ -50,7 +58,6 @@ function DashboardContent() {
   const additionalData = [
     { date: 'AWS 01', Services: getRandomNumber(0, 4000) },
     { date: 'AWS 02', Services: getRandomNumber(0, 4000) },
-
     { date: 'Athena', Services: getRandomNumber(0, 4000) },
     { date: 'Athena 2', Services: getRandomNumber(0, 4000) },
     { date: 'EU-west', Services: getRandomNumber(0, 4000) },
@@ -59,57 +66,68 @@ function DashboardContent() {
     // Add more data points as needed
   ];
 
+  // Example data for Pie Chart
+  const pieChartData = [
+    { name: 'Category 1', value: getRandomNumber(1, 100) },
+    { name: 'Category 2', value: getRandomNumber(1, 100) },
+    { name: 'Category 3', value: getRandomNumber(1, 100) },
+    { name: 'Category 4', value: getRandomNumber(1, 100) },
+
+    // Add more data points as needed
+  ];
+
   return (
     <div className="container">
       <h2>Cost, Energy, and Services Dashboard</h2>
 
-      {/* Row for elements in line */}
-      <Row className="mb-3">
+      {/* Top right section */}
+      <div className="d-flex justify-content-end mb-3">
         {/* Cloud Provider Dropdown */}
-        <Col md={4}>
-          <label className="mr-2">Select Cloud Provider: </label>
-          <Dropdown onSelect={(eventKey) => setSelectedProvider(eventKey)}>
-            <Dropdown.Toggle variant="primary">
-              {selectedProvider === 'aws' ? 'AWS' : 'Azure'}
-            </Dropdown.Toggle>
-            <Dropdown.Menu>
-              <Dropdown.Item eventKey="aws">AWS</Dropdown.Item>
-              <Dropdown.Item eventKey="azure">Azure</Dropdown.Item>
-            </Dropdown.Menu>
-          </Dropdown>
-        </Col>
+        <Dropdown onSelect={(eventKey) => setSelectedProvider(eventKey)}>
+          <Dropdown.Toggle variant="primary" className="mr-2 " style={horizontalPadding}>
+            {selectedProvider === 'aws' ? 'AWS' : 'Azure'}
+          </Dropdown.Toggle>
+          <Dropdown.Menu>
+          <Dropdown.Item eventKey="all">All</Dropdown.Item>
+            <Dropdown.Item eventKey="aws">AWS</Dropdown.Item>
+            <Dropdown.Item eventKey="azure">Azure</Dropdown.Item>
+          </Dropdown.Menu>
+        </Dropdown>
 
-        {/* Date Range Picker */}
-        <Col md={4}>
+       {/* Date Range Picker */}
+       <div className="d-flex align-items-center mr-2" style={horizontalPadding}>
           <label className="mr-2">Date Range: </label>
-          <DatePicker
-            selected={startDate}
-            onChange={(date) => setStartDate(date)}
-            selectsStart
-            startDate={startDate}
-            endDate={endDate}
-            className="form-control"
-          />
-          <DatePicker
-            selected={endDate}
-            onChange={(date) => setEndDate(date)}
-            selectsEnd
-            startDate={startDate}
-            endDate={endDate}
-            minDate={startDate}
-            className="form-control"
-          />
-        </Col>
+          <div className="d-flex">
+            <DatePicker
+              selected={startDate}
+              onChange={(date) => setStartDate(date)}
+              selectsStart
+              startDate={startDate}
+              endDate={endDate}
+              className="form-control "
+            />
+            <DatePicker
+              selected={endDate}
+              onChange={(date) => setEndDate(date)}
+              selectsEnd
+              startDate={startDate}
+              endDate={endDate}
+              minDate={startDate}
+              className="form-control ml-2"
+            />
+          </div>
+        </div>
 
         {/* Export Button */}
-        <Col md={4} className="d-flex align-items-end">
-          <CSVLink data={filteredData} headers={headers} filename={'Cost_Energy_Data.csv'}>
-            <Button variant="success">Export Data</Button>
-          </CSVLink>
-        </Col>
-      </Row>
+        <CSVLink data={filteredData} headers={headers} filename={'Cost_Energy_Data.csv'}>
+        <Button variant="success" style={horizontalPadding}>
+            Export Data
+          </Button>
+  
+        </CSVLink>
+      </div>
 
-      {/* Two Charts side by side */}
+      {/* Charts in one row */}
       <Row>
         {/* First Chart based on selected cloud provider (Area Chart) */}
         <Col md={6}>
@@ -139,6 +157,23 @@ function DashboardContent() {
               <Bar dataKey="Services" fill="#8884d8" name="Services" />
               {/* You can customize the additional chart as needed */}
             </BarChart>
+          </ResponsiveContainer>
+        </Col>
+      </Row>
+
+      <Row>
+        {/* Third Chart (Pie Chart) */}
+        <Col md={12}>
+          <ResponsiveContainer width="100%" height={400}>
+            <PieChart>
+              <Tooltip />
+              <Pie data={pieChartData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} fill="#8884d8">
+                {pieChartData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={`#${Math.floor(Math.random() * 16777215).toString(16)}`} />
+                ))}
+              </Pie>
+              <Legend />
+            </PieChart>
           </ResponsiveContainer>
         </Col>
       </Row>
