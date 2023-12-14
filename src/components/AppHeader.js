@@ -1,4 +1,3 @@
-// components/AppHeader.js
 import React from 'react';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
@@ -8,7 +7,7 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import irisLogo from './iris_logo.png';
+import irisLogo from '../img/iris_logo.png';
 import IconButton from '@mui/material/IconButton';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 
@@ -20,6 +19,11 @@ function AppHeader({ isLoggedIn, onLogout, onSelectProvider }) {
     onLogout(); // Call the onLogout function passed as a prop
     navigate('/login'); // Redirect to /login
   };
+
+  // Render the header only if the user is logged in
+  if (!isLoggedIn) {
+    return null;
+  }
 
   return (
     <AppBar position="fixed">
@@ -65,25 +69,11 @@ function AppHeader({ isLoggedIn, onLogout, onSelectProvider }) {
           </ListItem>
         </List>
 
-        {isLoggedIn ? (
-          <div style={{ marginLeft: 'auto' }}>
-            <IconButton color="inherit" component={Link} to="/login"
-            onClick={(handleLogout)}
-            >
+        <div style={{ marginLeft: 'auto' }}>
+          <IconButton color="inherit" component={Link} to="/login" onClick={handleLogout}>
             <ExitToAppIcon />
           </IconButton>
-
-            
-            {/* <Button
-              variant="contained"
-              color="secondary"
-              onClick={handleLogout}
-              style={{ marginLeft: '10px' }}
-            >
-              Logout
-            </Button> */}
-          </div>
-        ) : null}
+        </div>
       </Toolbar>
     </AppBar>
   );

@@ -1,5 +1,5 @@
 
-// chartData.js
+// ChartData.js
 export const awsData = [
   { date: '2023-01-01', cost: getRandomNumber(0, 4000), energy: getRandomNumber(0, 2000) },
   { date: '2023-02-01', cost: getRandomNumber(0, 4000), energy: getRandomNumber(0, 2000) },

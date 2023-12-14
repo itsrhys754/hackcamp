@@ -18,13 +18,12 @@ import { CSVLink } from 'react-csv';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Dropdown, Button, Row, Col } from 'react-bootstrap';
 import { awsData, azureData } from './ChartData';
-
-// Import PieChart, Pie, Cell from recharts
+import { additionalData, getRandomNumber } from './ServicesData';
 import { PieChart, Pie, Cell } from 'recharts';
 
 const horizontalPadding = {
-  paddingLeft: '10px', // Adjust the padding value as needed
-  paddingRight: '10px', // Adjust the padding value as needed
+  paddingLeft: '10px', 
+  paddingRight: '10px', 
 };
 
 function DashboardContent() {
@@ -44,7 +43,6 @@ function DashboardContent() {
   const totalEnergy = filteredData.reduce((total, entry) => total + entry.energy, 0);
 
   const handleZoomChange = (range) => {
-    // Handle zoom change if needed
     console.log('Zoom Range:', range);
   };
 
@@ -54,17 +52,6 @@ function DashboardContent() {
     { label: 'Energy', key: 'energy' },
   ];
 
-  // Example additional data
-  const additionalData = [
-    { date: 'AWS 01', Services: getRandomNumber(0, 4000) },
-    { date: 'AWS 02', Services: getRandomNumber(0, 4000) },
-    { date: 'Athena', Services: getRandomNumber(0, 4000) },
-    { date: 'Athena 2', Services: getRandomNumber(0, 4000) },
-    { date: 'EU-west', Services: getRandomNumber(0, 4000) },
-    { date: 'US-east', Services: getRandomNumber(0, 4000) },
-    { date: 'US-south', Services: getRandomNumber(0, 4000) },
-    // Add more data points as needed
-  ];
 
   // Example data for Pie Chart
   const pieChartData = [
@@ -72,7 +59,6 @@ function DashboardContent() {
     { name: 'Category 2', value: getRandomNumber(1, 100) },
     { name: 'Category 3', value: getRandomNumber(1, 100) },
     { name: 'Category 4', value: getRandomNumber(1, 100) },
-
     // Add more data points as needed
   ];
 
@@ -84,18 +70,18 @@ function DashboardContent() {
       <div className="d-flex justify-content-end mb-3">
         {/* Cloud Provider Dropdown */}
         <Dropdown onSelect={(eventKey) => setSelectedProvider(eventKey)}>
-          <Dropdown.Toggle variant="primary" className="mr-2 " style={horizontalPadding}>
-            {selectedProvider === 'aws' ? 'AWS' : 'Azure'}
+          <Dropdown.Toggle variant="primary" className="mr-2" style={horizontalPadding}>
+            {selectedProvider === 'aws' ? 'AWS' : selectedProvider === 'azure' ? 'Azure' : 'All'}
           </Dropdown.Toggle>
           <Dropdown.Menu>
-          <Dropdown.Item eventKey="all">All</Dropdown.Item>
+            <Dropdown.Item eventKey="all">All</Dropdown.Item>
             <Dropdown.Item eventKey="aws">AWS</Dropdown.Item>
             <Dropdown.Item eventKey="azure">Azure</Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown>
 
-       {/* Date Range Picker */}
-       <div className="d-flex align-items-center mr-2" style={horizontalPadding}>
+        {/* Date Range Picker */}
+        <div className="d-flex align-items-center mr-2" style={horizontalPadding}>
           <label className="mr-2">Date Range: </label>
           <div className="d-flex">
             <DatePicker
@@ -104,7 +90,8 @@ function DashboardContent() {
               selectsStart
               startDate={startDate}
               endDate={endDate}
-              className="form-control "
+              className="form-control"
+              placeholderText="Start Date"
             />
             <DatePicker
               selected={endDate}
@@ -114,6 +101,7 @@ function DashboardContent() {
               endDate={endDate}
               minDate={startDate}
               className="form-control ml-2"
+              placeholderText="End Date"
             />
           </div>
         </div>
@@ -185,11 +173,6 @@ function DashboardContent() {
       </div>
     </div>
   );
-}
-
-// Helper function to generate random numbers
-function getRandomNumber(min, max) {
-  return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
 export default DashboardContent;

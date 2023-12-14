@@ -30,8 +30,8 @@ function Connections() {
     const awsApiEndpoint = 'https://ce.us-east-1.amazonaws.com/';
     const awsAccessKeyId = 'YOUR_ACCESS_KEY_ID';
     axios.post(awsApiEndpoint, {
-        // ... (your request parameters)
-      }, {
+
+    }, {
         headers: {
           'Content-Type': 'application/json',
           'X-Amz-Target': 'AWSInsightsIndexService.GetCostAndUsage',
