@@ -1,4 +1,13 @@
 import React, { useState } from 'react';
+import { format, addMonths, subMonths } from 'date-fns'; // Import necessary date-fns functions
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import { CSVLink } from 'react-csv';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { Dropdown, Button, Row, Col } from 'react-bootstrap';
+import { awsData, azureData } from './ChartData';
+import { additionalData, getRandomNumber } from './ServicesData';
+import { PieChart, Pie, Cell } from 'recharts';
 import {
   AreaChart,
   Area,
@@ -12,18 +21,10 @@ import {
   BarChart,
   Bar,
 } from 'recharts';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
-import { CSVLink } from 'react-csv';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import { Dropdown, Button, Row, Col } from 'react-bootstrap';
-import { awsData, azureData } from './ChartData';
-import { additionalData, getRandomNumber } from './ServicesData';
-import { PieChart, Pie, Cell } from 'recharts';
 
 const horizontalPadding = {
-  paddingLeft: '10px', 
-  paddingRight: '10px', 
+  paddingLeft: '10px',
+  paddingRight: '10px',
 };
 
 function DashboardContent() {
@@ -46,19 +47,43 @@ function DashboardContent() {
     console.log('Zoom Range:', range);
   };
 
+  const handleDateRangeChange = (range) => {
+    const today = new Date();
+    let newStartDate;
+
+    switch (range) {
+      case '1m':
+        newStartDate = subMonths(today, 1);
+        break;
+      case '3m':
+        newStartDate = subMonths(today, 3);
+        break;
+      case '6m':
+        newStartDate = subMonths(today, 6);
+        break;
+      case '12m':
+        newStartDate = subMonths(today, 12);
+        break;
+      default:
+        newStartDate = null;
+    }
+
+    setStartDate(newStartDate);
+    setEndDate(today);
+  };
+
   const headers = [
     { label: 'Date', key: 'date' },
     { label: 'Cost', key: 'cost' },
     { label: 'Energy', key: 'energy' },
   ];
 
-
   // Example data for Pie Chart
   const pieChartData = [
-    { name: 'Category 1', value: getRandomNumber(1, 100) },
-    { name: 'Category 2', value: getRandomNumber(1, 100) },
-    { name: 'Category 3', value: getRandomNumber(1, 100) },
-    { name: 'Category 4', value: getRandomNumber(1, 100) },
+    { name: 'eu-west 1', value: getRandomNumber(1, 100) },
+    { name: 'eu-south', value: getRandomNumber(1, 100) },
+    { name: 'us-east 1', value: getRandomNumber(1, 100) },
+    { name: 'uk-south', value: getRandomNumber(1, 100) },
     // Add more data points as needed
   ];
 
@@ -67,7 +92,7 @@ function DashboardContent() {
       <h2>Cost, Energy, and Services Dashboard</h2>
 
       {/* Top right section */}
-      <div className="d-flex justify-content-end mb-3">
+      <div className="d-flex  mb-3">
         {/* Cloud Provider Dropdown */}
         <Dropdown onSelect={(eventKey) => setSelectedProvider(eventKey)}>
           <Dropdown.Toggle variant="primary" className="mr-2" style={horizontalPadding}>
@@ -80,7 +105,7 @@ function DashboardContent() {
           </Dropdown.Menu>
         </Dropdown>
 
-        {/* Date Range Picker */}
+        {/* Date Range Picker with additional options */}
         <div className="d-flex align-items-center mr-2" style={horizontalPadding}>
           <label className="mr-2">Date Range: </label>
           <div className="d-flex">
@@ -103,15 +128,27 @@ function DashboardContent() {
               className="form-control ml-2"
               placeholderText="End Date"
             />
+
+             {/* Dropdown for date range options */}
+             <Dropdown onSelect={(eventKey) => handleDateRangeChange(eventKey)} className="ml-2">
+              <Dropdown.Toggle variant="secondary" style={horizontalPadding}>
+                Date Range
+              </Dropdown.Toggle>
+              <Dropdown.Menu>
+                <Dropdown.Item eventKey="1m">1 Month</Dropdown.Item>
+                <Dropdown.Item eventKey="3m">3 Months</Dropdown.Item>
+                <Dropdown.Item eventKey="6m">6 Months</Dropdown.Item>
+                <Dropdown.Item eventKey="12m">12 Months</Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
           </div>
         </div>
 
         {/* Export Button */}
         <CSVLink data={filteredData} headers={headers} filename={'Cost_Energy_Data.csv'}>
-        <Button variant="success" style={horizontalPadding}>
+          <Button variant="success" style={horizontalPadding}>
             Export Data
           </Button>
-  
         </CSVLink>
       </div>
 
@@ -142,7 +179,7 @@ function DashboardContent() {
               <YAxis />
               <Tooltip />
               <Legend />
-              <Bar dataKey="Services" fill="#8884d8" name="Services" />
+              <Bar dataKey="Services" fill="#8884d8" name="Acounts" />
               {/* You can customize the additional chart as needed */}
             </BarChart>
           </ResponsiveContainer>
