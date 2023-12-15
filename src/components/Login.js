@@ -1,7 +1,24 @@
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Paper, Typography, TextField, Button, Grid, ThemeProvider, createTheme } from '@mui/material';
 import irisLogo from '../img/IRIS-logoBlack-190x60.png';
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyCUmBVpSJu36dqEEMt4SXZxt2JMeEifN2I",
+  authDomain: "hackcamp-cdae0.firebaseapp.com",
+  projectId: "hackcamp-cdae0",
+  storageBucket: "hackcamp-cdae0.appspot.com",
+  messagingSenderId: "199014817989",
+  appId: "1:199014817989:web:321d962cd3a723526a50ac"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 
 function Login({ onLogin }) {
   const navigate = useNavigate();
@@ -9,11 +26,16 @@ function Login({ onLogin }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  const handleLogin = () => {
-    if (username === 'admin' && password === 'pass') {
+  const handleLogin = async () => {
+    try {
+      // Sign in with Firebase authentication
+      const userCredential = await signInWithEmailAndPassword(auth, username, password);
+
+      // If successful, call onLogin and navigate to the dashboard
       onLogin();
       navigate('/dashboard');
-    } else {
+    } catch (error) {
+      // Handle authentication errors
       setError('Invalid credentials. Please try again.');
     }
   };
@@ -31,7 +53,7 @@ function Login({ onLogin }) {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: '320px', 
+    width: '320px',
     padding: '20px',
     textAlign: 'center',
   };
@@ -68,7 +90,7 @@ function Login({ onLogin }) {
               />
 
               <Button
-                type="submit"  // Add type="submit" to make the Enter key trigger this button
+                type="submit"
                 variant="contained"
                 color="primary"
                 fullWidth
