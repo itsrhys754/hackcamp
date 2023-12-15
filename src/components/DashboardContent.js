@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { format, addMonths, subMonths } from 'date-fns'; // Import necessary date-fns functions
+import { format, addMonths, subMonths } from 'date-fns';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { CSVLink } from 'react-csv';
@@ -20,15 +20,46 @@ import {
   Brush,
   BarChart,
   Bar,
+  Label,  // Import Label from Recharts
 } from 'recharts';
+
+const PROVIDER = {
+  ALL: 'all',
+  AWS: 'aws',
+  AZURE: 'azure',
+};
 
 const horizontalPadding = {
   paddingLeft: '10px',
   paddingRight: '10px',
 };
 
+const totalSectionStyle = {
+  marginBottom: '10px',
+  padding: '10px',
+  backgroundColor: '#f8f9fa', // Light gray background
+  borderRadius: '5px',
+  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)', // Optional: Add a subtle shadow
+};
+
+const totalTitleStyle = {
+  margin: '0',
+};
+
+
+const renderDatePicker = ({ selectedDate, onChange, placeholderText }) => (
+  <DatePicker
+    selected={selectedDate}
+    onChange={onChange}
+    selectsStart
+    startDate={selectedDate}
+    endDate={selectedDate}  
+    className="form-control"
+    placeholderText={placeholderText}
+  />
+);
+
 function DashboardContent() {
-  // State variables for show/hide
   const [showCost, setShowCost] = useState(true);
   const [showEnergy, setShowEnergy] = useState(true);
   const [selectedProvider, setSelectedProvider] = useState('aws');
@@ -70,6 +101,27 @@ function DashboardContent() {
 
     setStartDate(newStartDate);
     setEndDate(today);
+
+    if (selectedProvider === 'all') {
+      const awsFilteredData = awsData.filter(
+        (entry) => (!newStartDate || new Date(entry.date) >= newStartDate) && (!today || new Date(entry.date) <= today)
+      );
+      const azureFilteredData = azureData.filter(
+        (entry) => (!newStartDate || new Date(entry.date) >= newStartDate) && (!today || new Date(entry.date) <= today)
+      );
+
+      const totalAwsCost = awsFilteredData.reduce((total, entry) => total + entry.cost, 0);
+      const totalAwsEnergy = awsFilteredData.reduce((total, entry) => total + entry.energy, 0);
+
+      const totalAzureCost = azureFilteredData.reduce((total, entry) => total + entry.cost, 0);
+      const totalAzureEnergy = azureFilteredData.reduce((total, entry) => total + entry.energy, 0);
+
+      const totalCostAll = totalAwsCost + totalAzureCost;
+      const totalEnergyAll = totalAwsEnergy + totalAzureEnergy;
+
+      console.log('Total Cost (All):', totalCostAll);
+      console.log('Total Energy (All):', totalEnergyAll);
+    }
   };
 
   const headers = [
@@ -78,7 +130,6 @@ function DashboardContent() {
     { label: 'Energy', key: 'energy' },
   ];
 
-  // Example data for Pie Chart
   const pieChartData = [
     { name: 'eu-west 1', value: getRandomNumber(1, 100) },
     { name: 'eu-south', value: getRandomNumber(1, 100) },
@@ -91,12 +142,10 @@ function DashboardContent() {
     <div className="container">
       <h2>Cost, Energy, and Services Dashboard</h2>
 
-      {/* Top right section */}
       <div className="d-flex  mb-3">
-        {/* Cloud Provider Dropdown */}
         <Dropdown onSelect={(eventKey) => setSelectedProvider(eventKey)}>
           <Dropdown.Toggle variant="primary" className="mr-2" style={horizontalPadding}>
-            {selectedProvider === 'aws' ? 'AWS' : selectedProvider === 'azure' ? 'Azure' : 'All'}
+            {selectedProvider === 'all' ? 'All' : selectedProvider === 'aws' ? 'AWS' : selectedProvider === 'azure' ? 'Azure' : 'All'}
           </Dropdown.Toggle>
           <Dropdown.Menu>
             <Dropdown.Item eventKey="all">All</Dropdown.Item>
@@ -105,7 +154,6 @@ function DashboardContent() {
           </Dropdown.Menu>
         </Dropdown>
 
-        {/* Date Range Picker with additional options */}
         <div className="d-flex align-items-center mr-2" style={horizontalPadding}>
           <label className="mr-2">Date Range: </label>
           <div className="d-flex">
@@ -129,8 +177,7 @@ function DashboardContent() {
               placeholderText="End Date"
             />
 
-             {/* Dropdown for date range options */}
-             <Dropdown onSelect={(eventKey) => handleDateRangeChange(eventKey)} className="ml-2">
+            <Dropdown onSelect={(eventKey) => handleDateRangeChange(eventKey)} className="ml-2">
               <Dropdown.Toggle variant="secondary" style={horizontalPadding}>
                 Date Range
               </Dropdown.Toggle>
@@ -144,7 +191,6 @@ function DashboardContent() {
           </div>
         </div>
 
-        {/* Export Button */}
         <CSVLink data={filteredData} headers={headers} filename={'Cost_Energy_Data.csv'}>
           <Button variant="success" style={horizontalPadding}>
             Export Data
@@ -152,63 +198,66 @@ function DashboardContent() {
         </CSVLink>
       </div>
 
-      {/* Charts in one row */}
       <Row>
-        {/* First Chart based on selected cloud provider (Area Chart) */}
         <Col md={6}>
           <ResponsiveContainer width="100%" height={400}>
             <AreaChart data={filteredData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="date" />
-              <YAxis />
+              <YAxis>
+              <Label value="CO2 emissions" offset={5} position="insideLeft" angle={-90} />
+              </YAxis>
               <Tooltip />
               <Legend />
-              {showCost && <Area type="monotone" dataKey="cost" stackId="1" stroke="#8884d8" fill="#8884d8" name="Cost" />}
-              {showEnergy && <Area type="monotone" dataKey="energy" stackId="1" stroke="#82ca9d" fill="#82ca9d" name="Energy" />}
+              {showCost && <Area type="monotone" dataKey="cost" stackId="1" stroke="#8884d8" fill="#8884d8" name="Cost (£)" />}
+              {showEnergy && <Area type="monotone" dataKey="energy" stackId="1" stroke="#82ca9d" fill="#82ca9d" name="Energy (kWh)" />}
               <Brush dataKey="date" height={30} stroke="#8884d8" onChange={handleZoomChange} />
             </AreaChart>
           </ResponsiveContainer>
         </Col>
 
-        {/* Second Chart (Bar Chart) */}
         <Col md={6}>
           <ResponsiveContainer width="100%" height={400}>
             <BarChart data={additionalData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="date" />
-              <YAxis />
+              <YAxis>
+              <Label value="CO2 emissions" offset={5} position="insideLeft" angle={-90} />
+              </YAxis>
               <Tooltip />
               <Legend />
-              <Bar dataKey="Services" fill="#8884d8" name="Acounts" />
-              {/* You can customize the additional chart as needed */}
+              <Bar dataKey="Services" fill="#8884d8" name="Accounts" />
             </BarChart>
           </ResponsiveContainer>
         </Col>
       </Row>
 
       <Row>
-        {/* Third Chart (Pie Chart) */}
-        <Col md={12}>
-          <ResponsiveContainer width="100%" height={400}>
-            <PieChart>
-              <Tooltip />
-              <Pie data={pieChartData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} fill="#8884d8">
-                {pieChartData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={`#${Math.floor(Math.random() * 16777215).toString(16)}`} />
-                ))}
-              </Pie>
-              <Legend />
-            </PieChart>
-          </ResponsiveContainer>
-        </Col>
-      </Row>
+  <Col md={12}>
+    <ResponsiveContainer width="100%" height={500}>
+      <PieChart>
+        <Tooltip />
+        <Pie data={pieChartData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={120} fill="#8884d8">
+          {pieChartData.map((entry, index) => {
+            const predefinedColors = ["#8884d8", "#82ca9d", "#ffc658", "#ff7f0e"]; // Add more colors as needed
+            return <Cell key={`cell-${index}`} fill={predefinedColors[index % predefinedColors.length]} />;
+          })}
+        </Pie>
+        <Legend />
+      </PieChart>
+    </ResponsiveContainer>
+  </Col>
+</Row>
 
-      {/* Display total cost, energy, and services */}
-      <div className="mt-3">
-        <h3>Total Cost: {totalCost}</h3>
-        <h3>Total Energy: {totalEnergy}</h3>
-      </div>
-    </div>
+      <div className="mt-3" style={{ display: 'flex', flexDirection: 'column' }}>
+  <div style={totalSectionStyle}>
+    <h3 style={totalTitleStyle}>Total Cost: £{totalCost.toFixed(2)}</h3>
+  </div>
+  <div style={totalSectionStyle}>
+    <h3 style={totalTitleStyle}>Total Energy: {totalEnergy.toFixed(2)} kWh</h3>
+  </div>
+</div>
+</div>
   );
 }
 

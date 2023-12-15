@@ -10,30 +10,49 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import irisLogo from '../img/iris_logo.png';
 import IconButton from '@mui/material/IconButton';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+import PropTypes from 'prop-types';
+
+const listItemStyle = {
+  backgroundColor: 'transparent',
+  transition: 'background-color 0.3s',
+  borderRadius: '15px',
+  color: '#fff',
+};
+
+const activeListItemStyle = {
+  backgroundColor: '#87CEEB',
+  color: '#000',
+};
 
 function AppHeader({ isLoggedIn, onLogout, onSelectProvider }) {
   const navigate = useNavigate();
   const location = useLocation();
 
   const handleLogout = () => {
-    onLogout(); // Call the onLogout function passed as a prop
-    navigate('/login'); // Redirect to /login
+    onLogout();
+    navigate('/login');
   };
 
-  // Render the header only if the user is logged in
   if (!isLoggedIn) {
-    return null;
+    // Render login component or handle differently based on your use case
+    return (
+      <div>
+        {/* Render login component or message */}
+      </div>
+    );
   }
 
   return (
     <AppBar position="fixed">
       <Toolbar>
-        <img
-          src={irisLogo}
-          alt="IRIS Cloud Carbon Footprint Logo"
-          style={{ width: '100px', height: 'auto', paddingRight: '10px' }}
-          className="logo-img"
-        />
+        <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
+          <img
+            src={irisLogo}
+            alt="IRIS Cloud Carbon Footprint Logo"
+            style={{ width: '100px', height: 'auto', paddingRight: '10px' }}
+            className="logo-img"
+          />
+        </Link>
         <Typography variant="h6" noWrap style={{ flex: 1, marginLeft: '20px', color: '#fff' }}>
           Cloud Carbon Footprint
         </Typography>
@@ -45,10 +64,8 @@ function AppHeader({ isLoggedIn, onLogout, onSelectProvider }) {
             to="/dashboard"
             className={`nav-item ${location.pathname === '/dashboard' ? 'active' : ''}`}
             style={{
-              backgroundColor: location.pathname === '/dashboard' ? '#87CEEB' : 'transparent',
-              transition: 'background-color 0.3s',
-              borderRadius: '15px',
-              color: location.pathname === '/dashboard' ? '#000' : '#fff',
+              ...listItemStyle,
+              ...(location.pathname === '/dashboard' ? activeListItemStyle : {}),
             }}
           >
             <ListItemText primary="Dashboard" />
@@ -59,10 +76,8 @@ function AppHeader({ isLoggedIn, onLogout, onSelectProvider }) {
             to="/connections"
             className={`nav-item ${location.pathname === '/connections' ? 'active' : ''}`}
             style={{
-              backgroundColor: location.pathname === '/connections' ? '#87CEEB' : 'transparent',
-              transition: 'background-color 0.3s',
-              borderRadius: '15px',
-              color: location.pathname === '/connections' ? '#000' : '#fff',
+              ...listItemStyle,
+              ...(location.pathname === '/connections' ? activeListItemStyle : {}),
             }}
           >
             <ListItemText primary="Connections" />
@@ -78,5 +93,11 @@ function AppHeader({ isLoggedIn, onLogout, onSelectProvider }) {
     </AppBar>
   );
 }
+
+AppHeader.propTypes = {
+  isLoggedIn: PropTypes.bool.isRequired,
+  onLogout: PropTypes.func.isRequired,
+  onSelectProvider: PropTypes.func.isRequired,
+};
 
 export default AppHeader;

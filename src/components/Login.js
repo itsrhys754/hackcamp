@@ -72,7 +72,7 @@ function Login({ onLogin }) {
 
             <form onSubmit={(e) => { e.preventDefault(); handleLogin(); }}>
               <TextField
-                label="Username"
+                label="Email"
                 variant="outlined"
                 fullWidth
                 margin="normal"
